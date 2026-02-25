@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Satisfaction des élèves - Présentation</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background-color:#e0f7fa; transition: direction 0.3s;}
+    header { background-image: url('https://images.unsplash.com/photo-1581092795367-cf2cecc9622e?fit=crop&w=1500&q=80'); 
+             height: 250px; background-size: cover; background-position: center; display: flex; align-items:center; justify-content:center; color:white; text-shadow:2px 2px 4px #000;}
+    header h1 { font-size:3em; text-align:center; }
+    .section { background: #ffffffcc; padding: 25px; margin: 20px auto; max-width: 900px; border-radius: 15px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+    button { padding:12px 30px; border:none; border-radius:8px; background-color:#0288d1; color:white; font-weight:bold; cursor:pointer; margin:5px; transition:0.3s;}
+    button:hover { background-color:#0277bd;}
+    label { display:block; margin:10px 0 5px; font-weight:bold;}
+    input[type=number], input[type=password], input[type=text], textarea { width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; font-size:1em;}
+    h2 { text-align:center; color:#0288d1;}
+    h3,h4 { color:#0288d1; }
+    .hidden { display:none;}
+    ul { padding-left:20px;}
+    .backBtn { background-color:#f44336; }
+    .backBtn:hover { background-color:#d32f2f; }
+    .tabContent { margin-top:15px; }
+    .tabBtn { border-radius:8px; background-color:#26a69a; color:white; margin:0 5px; padding:10px 15px; transition:0.3s;}
+    .tabBtn:hover { background-color:#2baf6a; }
+    .bar-container { background-color:#ddd; border-radius:6px; margin:5px 0; width:100%; height:20px;}
+    .bar { height:100%; border-radius:6px; text-align:right; padding-right:5px; color:white; font-weight:bold; transition: width 1s;}
+    .bar.q1 { background-color:#0288d1; }
+    .bar.q2 { background-color:#26a69a; }
+    .bar.q3 { background-color:#fbc02d; }
+    .bar.q4 { background-color:#ef6c00; }
+    .bar.q5 { background-color:#7b1fa2; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Satisfaction des élèves au professeur</h1>
+</header>
+
+<!-- Choix langue -->
+<div class="section" id="languageSection">
+  <h2>🌐 Choisissez votre langue / Choose your language / اختر لغتك</h2>
+  <div style="text-align:center;">
+    <button onclick="setLanguage('fr'); hideLanguage()">Français 🇫🇷</button>
+    <button onclick="setLanguage('en'); hideLanguage()">English 🇬🇧</button>
+    <button onclick="setLanguage('ar'); hideLanguage()">العربية 🇸🇦</button>
+  </div>
+</div>
+
+<div class="section hidden" id="backToLanguageSection" style="text-align:center;">
+  <button class="backBtn" onclick="returnToLanguage()">⬅ Revenir à la langue</button>
+</div>
+
+<!-- Choix étudiant/admin -->
+<div class="section hidden" id="choiceSection">
+  <h2>👥 Qui êtes-vous ?</h2>
+  <div style="text-align:center;">
+    <button onclick="showStudent()">Je suis Étudiant 🎓</button>
+    <button onclick="showAdminLogin()">Je suis Admin 🔑</button>
+  </div>
+</div>
+
+<!-- Section Étudiant -->
+<div class="section hidden" id="studentSection">
+  <h2>🎓 Questionnaire Étudiant</h2>
+
+  <label for="studentName">🖊 Nom de l'étudiant</label>
+  <input type="text" id="studentName" placeholder="Votre nom..." maxlength="50">
+
+  <label for="q1">📘 Qualité de l’enseignement (1-5)</label>
+  <input type="number" id="q1" min="1" max="5">
+
+  <label for="q2">📝 Clarté des explications (1-5)</label>
+  <input type="number" id="q2" min="1" max="5">
+
+  <label for="q3">🤝 Disponibilité du professeur (1-5)</label>
+  <input type="number" id="q3" min="1" max="5">
+
+  <label for="q4">🎯 Pertinence des exercices (1-5)</label>
+  <input type="number" id="q4" min="1" max="5">
+
+  <label for="q5">💡 Encouragement et motivation (1-5)</label>
+  <input type="number" id="q5" min="1" max="5">
+
+  <label for="message">💬 Message</label>
+  <textarea id="message" rows="4" maxlength="200" placeholder="Écrivez votre message ici..."></textarea>
+
+  <label><input type="checkbox" id="anonymousCheck"> Rester anonyme</label>
+
+  <div style="text-align:center;">
+    <button onclick="submitVote()">Envoyer ✅</button>
+    <button class="backBtn" onclick="goBack()">⬅ Retour</button>
+  </div>
+  <p id="studentMessage"></p>
+</div>
+
+<!-- Section Admin login -->
+<div class="section hidden" id="adminLogin">
+  <h2>🔑 Admin : Connexion</h2>
+  <label for="adminPassword">Mot de passe :</label>
+  <input type="password" id="adminPassword">
+  <div style="text-align:center;">
+    <button onclick="loginAdmin()">Se connecter</button>
+    <button class="backBtn" onclick="goBack()">⬅ Retour</button>
+  </div>
+  <p id="adminMessage"></p>
+</div>
+
+<!-- Section Admin résultats avec onglets -->
+<div class="section hidden" id="adminSection">
+  <h2>📊 Résultats des votes</h2>
+  <!-- Onglets -->
+  <div style="text-align:center; margin-bottom:15px;">
+    <button class="tabBtn" onclick="showTab('summary')">📈 Cumul des votes</button>
+    <button class="tabBtn" onclick="showTab('allVotes')">🗳️ Votes</button>
+    <button class="tabBtn" onclick="showTab('anonymousVotes')">🕵️ Votes anonymes</button>
+  </div>
+
+  <!-- Contenu onglets -->
+  <div id="tabSummary" class="tabContent">
+    <canvas id="chartSummary" style="max-height:300px;"></canvas>
+    <div id="summaryResults"></div>
+  </div>
+
+  <div id="tabAllVotes" class="tabContent hidden">
+    <div id="allVotesResults"></div>
+  </div>
+
+  <div id="tabAnonymousVotes" class="tabContent hidden">
+    <div id="anonymousVotesResults"></div>
+  </div>
+
+  <h3>💌 Messages des étudiants</h3>
+  <ul id="messagesList"></ul>
+
+  <div style="text-align:center; margin-top:15px;">
+    <button class="backBtn" onclick="goBackAdmin()">⬅ Retour</button>
+    <button onclick="exportCSV()">📁 Export CSV</button>
+  </div>
+</div>
+
+<script>
+let votes = [];
+const adminPassword = "2433283Td*";
+let currentLang = 'fr';
+
+const texts = {
+  fr:{header:"Satisfaction des élèves au professeur",who:"👥 Qui êtes-vous ?",studentBtn:"Je suis Étudiant 🎓",adminBtn:"Je suis Admin 🔑",q1:"📘 Qualité de l’enseignement (1-5)",q2:"📝 Clarté des explications (1-5)",q3:"🤝 Disponibilité du professeur (1-5)",q4:"🎯 Pertinence des exercices (1-5)",q5:"💡 Encouragement et motivation (1-5)",message:"💬 Message",send:"Envoyer ✅",back:"⬅ Retour",adminLoginTitle:"🔑 Admin : Connexion",password:"Mot de passe :",wrongPass:"❌ Mot de passe incorrect !",thanks:"✅ Merci pour votre participation !",results:"📊 Résultats des votes",noVotes:"Aucun vote pour le moment.",messages:"💌 Messages des étudiants",returnLang:"⬅ Revenir à la langue",alertInvalid:"Merci de remplir correctement toutes les notes (1-5)."},
+  en:{header:"Student Satisfaction Survey",who:"👥 Who are you?",studentBtn:"I am a Student 🎓",adminBtn:"I am Admin 🔑",q1:"📘 Teaching quality (1-5)",q2:"📝 Clarity of explanations (1-5)",q3:"🤝 Teacher availability (1-5)",q4:"🎯 Relevance of exercises (1-5)",q5:"💡 Encouragement and motivation (1-5)",message:"💬 Message",send:"Send ✅",back:"⬅ Back",adminLoginTitle:"🔑 Admin: Login",password:"Password:",wrongPass:"❌ Wrong password!",thanks:"✅ Thank you!",results:"📊 Voting results",noVotes:"No votes yet.",messages:"💌 Student messages",returnLang:"⬅ Return to language",alertInvalid:"Please fill all scores between 1 and 5."},
+  ar:{header:"استبيان رضا الطلاب عن الأستاذ",who:"👥 من أنت؟",studentBtn:"أنا طالب 🎓",adminBtn:"أنا المسؤول 🔑",q1:"📘 جودة التدريس (1-5)",q2:"📝 وضوح الشرح (1-5)",q3:"🤝 توافر الأستاذ (1-5)",q4:"🎯 مدى ملاءمة التمارين (1-5)",q5:"💡 التشجيع والتحفيز (1-5)",message:"💬 رسالة",send:"إرسال ✅",back:"⬅ العودة",adminLoginTitle:"🔑 تسجيل دخول المسؤول",password:"كلمة المرور:",wrongPass:"❌ كلمة المرور غير صحيحة!",thanks:"✅ شكراً لمشاركتك!",results:"📊 نتائج التصويت",noVotes:"لا توجد تصويتيات بعد.",messages:"💌 رسائل الطلاب",returnLang:"⬅ العودة للغة",alertInvalid:"يرجى ملء جميع الدرجات بين 1 و5."}
+};
+
+function showStudent(){document.getElementById('choiceSection').classList.add('hidden');document.getElementById('studentSection').classList.remove('hidden');}
+function showAdminLogin(){document.getElementById('choiceSection').classList.add('hidden');document.getElementById('adminLogin').classList.remove('hidden');}
+function goBack(){document.getElementById('studentSection').classList.add('hidden');document.getElementById('adminLogin').classList.add('hidden');document.getElementById('choiceSection').classList.remove('hidden');document.getElementById('studentMessage').innerText="";document.getElementById('adminMessage').innerText="";}
+function goBackAdmin(){document.getElementById('adminSection').classList.add('hidden');document.getElementById('choiceSection').classList.remove('hidden');}
+function hideLanguage(){document.getElementById('languageSection').classList.add('hidden');document.getElementById('choiceSection').classList.remove('hidden');document.getElementById('backToLanguageSection').classList.remove('hidden');}
+function returnToLanguage(){document.getElementById('languageSection').classList.remove('hidden');document.getElementById('choiceSection').classList.add('hidden');document.getElementById('backToLanguageSection').classList.add('hidden');}
+
+function submitVote(){
+  const name = document.getElementById('studentName').value.trim();
+  const anonymous = document.getElementById('anonymousCheck').checked;
+  const scores=[...Array(5)].map((_,i)=>parseInt(document.getElementById('q'+(i+1)).value));
+  if(scores.some(s=>isNaN(s)||s<1||s>5)){alert(texts[currentLang].alertInvalid);return;}
+  const message=document.getElementById('message').value.trim();
+  votes.push({name:name||"Inconnu",scores:scores,anonymous:anonymous,message:message});
+  document.getElementById('studentMessage').innerText=texts[currentLang].thanks;
+  document.getElementById('studentName').value='';document.getElementById('q1').value='';document.getElementById('q2').value='';document.getElementById('q3').value='';document.getElementById('q4').value='';document.getElementById('q5').value='';document.getElementById('message').value='';document.getElementById('anonymousCheck').checked=false;
+}
+
+function loginAdmin(){const pass=document.getElementById('adminPassword').value;if(pass===adminPassword){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminSection').classList.remove('hidden');renderResults();}else{document.getElementById('adminMessage').innerText=texts[currentLang].wrongPass;}}
+
+let chartSummary=null;
+function renderResults(){
+  if(votes.length===0){
+    document.getElementById('summaryResults').innerText = texts[currentLang].noVotes;
+    document.getElementById('allVotesResults').innerText = texts[currentLang].noVotes;
+    document.getElementById('anonymousVotesResults').innerText = texts[currentLang].noVotes;
+    document.getElementById('messagesList').innerHTML='';
+    return;
+  }
+
+  // 1️⃣ Cumul
+  const total=[0,0,0,0,0]; votes.forEach(v=>v.scores.forEach((s,i)=>total[i]+=s));
+  const avg=total.map(tt=>tt/votes.length);
+  const ctx = document.getElementById('chartSummary').getContext('2d');
+  if(chartSummary) chartSummary.destroy();
+  chartSummary = new Chart(ctx,{type:'bar',data:{labels:[texts[currentLang].q1,texts[currentLang].q2,texts[currentLang].q3,texts[currentLang].q4,texts[currentLang].q5],datasets:[{label:'Moyenne (%)',data:avg.map(a=>a/5*100),backgroundColor:['#0288d1','#26a69a','#fbc02d','#ef6c00','#7b1fa2']} ] },options:{scales:{y:{beginAtZero:true,max:100}}}} );
+  document.getElementById('summaryResults').innerHTML = `<p>Moyenne globale: ${avg.map(a=>a.toFixed(2)).join(', ')}</p>`;
+
+  // 2️⃣ Tous les votes
+  const allDiv = document.getElementById('allVotesResults'); allDiv.innerHTML='';
+  votes.forEach((v,index)=>{
+    allDiv.innerHTML += `<h4>Vote ${index+1} - ${v.name}</h4>`;
+    v.scores.forEach((s,i)=>{
+      const perc=(s/5*100).toFixed(1);
+      allDiv.innerHTML += `<div class="bar-container"><div class="bar q${i+1}" style="width:${perc}%">${perc}%</div></div>`;
+    });
+    if(v.message) allDiv.innerHTML += `<p>💬 ${v.message}</p><hr>`;
+  });
+
+  // 3️⃣ Votes anonymes
+  const anonDiv = document.getElementById('anonymousVotesResults'); anonDiv.innerHTML='';
+  votes.filter(v=>v.anonymous).forEach((v,index)=>{
+    anonDiv.innerHTML += `<h4>Vote ${index+1} - Anonyme</h4>`;
+    v.scores.forEach((s,i)=>{
+      const perc=(s/5*100).toFixed(1);
+      anonDiv.innerHTML += `<div class="bar-container"><div class="bar q${i+1}" style="width:${perc}%">${perc}%</div></div>`;
+    });
+    if(v.message) anonDiv.innerHTML += `<p>💬 ${v.message}</p><hr>`;
+  });
+
+  const list=document.getElementById('messagesList'); list.innerHTML='';
+  votes.forEach(v=>{if(v.message){const li=document.createElement('li'); li.textContent=v.message; list.appendChild(li);}});
+}
+
+// Onglets admin
+function showTab(tabName){
+  document.querySelectorAll('.tabContent').forEach(c=>c.classList.add('hidden'));
+  if(tabName==='summary') document.getElementById('tabSummary').classList.remove('hidden');
+  if(tabName==='allVotes') document.getElementById('tabAllVotes').classList.remove('hidden');
+  if(tabName==='anonymousVotes') document.getElementById('tabAnonymousVotes').classList.remove('hidden');
+}
+
+// Export CSV
+function exportCSV(){
+  let csv="Nom,Anonyme,Q1,Q2,Q3,Q4,Q5,Message\n";
+  votes.forEach(v=>{csv+=`${v.name},${v.anonymous},${v.scores.join(',')},"${v.message}"\n`;});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download="votes.csv"; a.click(); URL.revokeObjectURL(url);
+}
+
+// Langue
+function setLanguage(lang){currentLang=lang;document.querySelector('header h1').innerText=texts[lang].header;document.getElementById('choiceSection').querySelector('h2').innerText=texts[lang].who;document.getElementById('choiceSection').querySelectorAll('button')[0].innerText=texts[lang].studentBtn;document.getElementById('choiceSection').querySelectorAll('button')[1].innerText=texts[lang].adminBtn;}
+</script>
+
+</body>
+</html>
